@@ -6,13 +6,23 @@
 
 # Machine Learning and Dashboards on the Cloud
 
-> Using Google Cloud Platform, Apache Spark, and RStudio
+> Using Google Cloud Platform, Hive, Spark, and RStudio
 
-> ideally one sentence
+- Find 100GB of real click-through data
+- Download the data into Google's Cloud Storage
+- Create a Hive/Spark cluster hosted on the Google Cloud Platform
+- Query the data using Hive to prepare it for analysis
+- Install RStudio on the cluster
+- Build an interactive dashboard using R Shiny
+- Execute a machine learning pipeline using the R interface for Spark's Machine Learning Library (MLlib)
 
-> include terms/tags that can be searched
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
-**Technolgies stack:**
+**Dashboard Preview**
+
+![Dashboard](https://github.com/matthewgoerg/hive-rstudio/blob/master/dashboard.png)
+
+**Technology stack:**
 
 - Google Cloud Platform
 - HDFS
@@ -22,30 +32,6 @@
 - sparklyr
 - Shiny
 - BigQuery
-
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
-
-***INSERT ANOTHER GRAPHIC HERE***
-
-[![INSERT YOUR GRAPHIC HERE](http://i.imgur.com/dt8AUb6.png)]()
-
-- Most people will glance at your `README`, *maybe* star it, and leave
-- Ergo, people should understand instantly what your project is about based on your repo
-
-> Tips
-
-- HAVE WHITE SPACE
-- MAKE IT PRETTY
-- GIFS ARE REALLY COOL
-
-> GIF Tools
-
-- Use <a href="http://recordit.co/" target="_blank">**Recordit**</a> to create quicks screencasts of your desktop and export them as `GIF`s.
-- For terminal sessions, there's <a href="https://github.com/chjj/ttystudio" target="_blank">**ttystudio**</a> which also supports exporting `GIF`s.
-
-**Recordit**
-
-![Recordit GIF](https://github.com/matthewgoerg/hive-rstudio/blob/master/dashboard.png)
 
 ---
 
@@ -73,6 +59,7 @@ Once you have the account and project, click on Cloud Shell and enter the follow
 ```cloudshell
 export REGION=us-central1
 export ZONE=us-central1-a
+export PROJECT=<your-project-name>
 gcloud config set compute/zone $ZONE
 
 gcloud services enable dataproc.googleapis.com sqladmin.googleapis.com
@@ -111,6 +98,8 @@ After you enter your credentials, you will get a command line. Enter this line t
 ```clustercommandline
 beeline -u jdbc:hive2://localhost:10000/default -n *rstudio*@*hive-cluster-m* -d org.apache.hive.jdbc.HiveDriver
 ```
+
+## Hive
 
 The Hive query language (HQL) is substantially similar to standard SQL. For example, to view all the tables in 
 your environment, type this:
@@ -177,8 +166,72 @@ test out our machine learning pipeline on a subset of the data. Once, we know it
 we can go back and run it on our entire data. The following code will randomly sample 10,000
 rows from click_data into a new table called click_sample.
 
+```hiveql
+DROP TABLE IF EXISTS click_sample;
 
+CREATE TABLE click_sample
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+STORED AS textfile
+AS SELECT
+	CASE WHEN label IS NULL THEN 0 ELSE label END AS label,
+	CASE WHEN int_feature_01 IS NULL THEN 0 ELSE int_feature_01 END AS int_feature_01,
+	CASE WHEN int_feature_02 IS NULL THEN 0 ELSE int_feature_02 END AS int_feature_02,
+	CASE WHEN int_feature_03 IS NULL THEN 0 ELSE int_feature_03 END AS int_feature_03,
+	CASE WHEN int_feature_04 IS NULL THEN 0 ELSE int_feature_04 END AS int_feature_04,
+	CASE WHEN int_feature_05 IS NULL THEN 0 ELSE int_feature_05 END AS int_feature_05,
+	CASE WHEN int_feature_06 IS NULL THEN 0 ELSE int_feature_06 END AS int_feature_06,
+	CASE WHEN int_feature_07 IS NULL THEN 0 ELSE int_feature_07 END AS int_feature_07,
+	CASE WHEN int_feature_08 IS NULL THEN 0 ELSE int_feature_08 END AS int_feature_08,
+	CASE WHEN int_feature_09 IS NULL THEN 0 ELSE int_feature_09 END AS int_feature_09,
+	CASE WHEN int_feature_10 IS NULL THEN 0 ELSE int_feature_10 END AS int_feature_10,
+	CASE WHEN int_feature_11 IS NULL THEN 0 ELSE int_feature_11 END AS int_feature_11,
+	CASE WHEN int_feature_12 IS NULL THEN 0 ELSE int_feature_12 END AS int_feature_12,
+	CASE WHEN int_feature_13 IS NULL THEN 0 ELSE int_feature_13 END AS int_feature_13,
+	CASE WHEN cat_feature_01 = '' THEN 'EMPTY' ELSE cat_feature_01 END AS cat_feature_01,
+	CASE WHEN cat_feature_02 = '' THEN 'EMPTY' ELSE cat_feature_02 END AS cat_feature_02,
+	CASE WHEN cat_feature_03 = '' THEN 'EMPTY' ELSE cat_feature_03 END AS cat_feature_03,
+	CASE WHEN cat_feature_04 = '' THEN 'EMPTY' ELSE cat_feature_04 END AS cat_feature_04,
+	CASE WHEN cat_feature_05 = '' THEN 'EMPTY' ELSE cat_feature_05 END AS cat_feature_05,
+	CASE WHEN cat_feature_06 = '' THEN 'EMPTY' ELSE cat_feature_06 END AS cat_feature_06,
+	CASE WHEN cat_feature_07 = '' THEN 'EMPTY' ELSE cat_feature_07 END AS cat_feature_07,
+	CASE WHEN cat_feature_08 = '' THEN 'EMPTY' ELSE cat_feature_08 END AS cat_feature_08,
+	CASE WHEN cat_feature_09 = '' THEN 'EMPTY' ELSE cat_feature_09 END AS cat_feature_09,
+	CASE WHEN cat_feature_10 = '' THEN 'EMPTY' ELSE cat_feature_10 END AS cat_feature_10,
+	CASE WHEN cat_feature_11 = '' THEN 'EMPTY' ELSE cat_feature_11 END AS cat_feature_11,
+	CASE WHEN cat_feature_12 = '' THEN 'EMPTY' ELSE cat_feature_12 END AS cat_feature_12,
+	CASE WHEN cat_feature_13 = '' THEN 'EMPTY' ELSE cat_feature_13 END AS cat_feature_13,
+	CASE WHEN cat_feature_14 = '' THEN 'EMPTY' ELSE cat_feature_14 END AS cat_feature_14,
+	CASE WHEN cat_feature_15 = '' THEN 'EMPTY' ELSE cat_feature_15 END AS cat_feature_15,
+	CASE WHEN cat_feature_16 = '' THEN 'EMPTY' ELSE cat_feature_16 END AS cat_feature_16,
+	CASE WHEN cat_feature_17 = '' THEN 'EMPTY' ELSE cat_feature_17 END AS cat_feature_17,
+	CASE WHEN cat_feature_18 = '' THEN 'EMPTY' ELSE cat_feature_18 END AS cat_feature_18,
+	CASE WHEN cat_feature_19 = '' THEN 'EMPTY' ELSE cat_feature_19 END AS cat_feature_19,
+	CASE WHEN cat_feature_20 = '' THEN 'EMPTY' ELSE cat_feature_20 END AS cat_feature_20,
+	CASE WHEN cat_feature_21 = '' THEN 'EMPTY' ELSE cat_feature_21 END AS cat_feature_21,
+	CASE WHEN cat_feature_22 = '' THEN 'EMPTY' ELSE cat_feature_22 END AS cat_feature_22,
+	CASE WHEN cat_feature_23 = '' THEN 'EMPTY' ELSE cat_feature_23 END AS cat_feature_23,
+	CASE WHEN cat_feature_24 = '' THEN 'EMPTY' ELSE cat_feature_24 END AS cat_feature_24,
+	CASE WHEN cat_feature_25 = '' THEN 'EMPTY' ELSE cat_feature_25 END AS cat_feature_25,
+	CASE WHEN cat_feature_26 = '' THEN 'EMPTY' ELSE cat_feature_26 END AS cat_feature_26
+ FROM click_data
+ WHERE rand() <= 0.0006
+ DISTRIBUTE BY rand()
+ SORT BY rand()
+ LIMIT 10000;
+```
 
+## RStudio Environment
+
+The HQL code is not very exciting in this project because there is only one table and the 
+column names are masked so it is difficult to formulate interesting analytic questions.
+
+I will add the instructions to set up the next part soon, but it involves moving the data 
+from the flat files to GCP's BigQuery. Once the data is there, we can use it to build a Shiny 
+app.
+
+```r
+
+```
 
 
 ---
