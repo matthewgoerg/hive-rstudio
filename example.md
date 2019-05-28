@@ -231,14 +231,14 @@ The first file is a bash script that loops through each categorical variable and
 each one. The HQL script is simply a query that returns a table of the top 20 most common variables for the 
 given categorical field. These tables will come into play as we set up the ML pipeline. 
 
+***loop_data.sh***
 ```bashscript
-## loop_data.sh
 for flag in $(seq -f "%02g" 1 26);
 do
   hive --hivevar mytable="table_cat_feature_"$flag --hivevar myvar="cat_feature_"$flag flag=$flag -f new_data.hql
 done
 ```
-
+***new_data.hql***
 ```hql
 DROP TABLE IF EXISTS ${hivevar:mytable};
 
@@ -249,6 +249,8 @@ GROUP BY ${hivevar:myvar}
 ORDER BY count_ DESC
 LIMIT 20;
 ```
+
+We are going to leave Hive now, but you can try some analytic queries here if you want.
 
 ## RStudio Environment
 
