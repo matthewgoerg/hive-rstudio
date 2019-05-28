@@ -67,6 +67,9 @@
 
 ## Set up GCP project
 
+For this project, you will need a Google Cloud Platform account and project. The instructions to do this can be found here. 
+Once you have the account and project, click on Cloud Shell and enter the following commands to create a DataProc cluster:
+
 ```cloudshell
 
 export REGION=us-central1
@@ -94,6 +97,9 @@ gs://dataproc-initialization-actions/cloud-sql-proxy/cloud-sql-proxy.sh \
 
 ```
 
+Now download the Google Cloud SDK onto your machine. You will also need a SSH client. I am using PuTTY. 
+Enter the following code to launch PuTTY and SSH into your cluster.
+
 ```googlecloudsdk
 
 gcloud compute ssh ^
@@ -101,6 +107,14 @@ gcloud compute ssh ^
 	--project=$PROJECT ^
  	hive-cluster-m -- ^
 	-L 8787:localhost:8787
+
+```
+
+After you enter your credentials, you will get a command line. Enter this line to launch the Hive environment.
+
+```clustercommandline
+
+beeline -u jdbc:hive2://localhost:10000/default -n *rstudio*@*hive-cluster-m* -d org.apache.hive.jdbc.HiveDriver
 
 ```
 
@@ -125,7 +139,7 @@ gcloud compute ssh ^
 $ brew update
 $ brew install fvcproductions
 ```
-
+Go to your browser and navigate to http://localhost:8787. 
 > now install npm and bower packages
 
 ```shell
