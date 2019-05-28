@@ -65,7 +65,7 @@
 
 ---
 
-## gcp
+## Set up GCP project
 
 ```cloudshell
 
