@@ -1,8 +1,6 @@
-<a href="http://fvcproductions.com"><img src="https://avatars1.githubusercontent.com/u/4284691?v=3&s=200" title="FVCproductions" alt="FVCproductions"></a>
+**Dashboard Preview**
 
-<!-- [![FVCproductions](https://avatars1.githubusercontent.com/u/4284691?v=3&s=200)](http://fvcproductions.com) -->
-
-***INSERT GRAPHIC HERE (include hyperlink in image)***
+![Dashboard](https://github.com/matthewgoerg/hive-rstudio/blob/master/dashboard.png)
 
 # Machine Learning and Dashboards on the Cloud
 
@@ -18,9 +16,7 @@
 
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
-**Dashboard Preview**
 
-![Dashboard](https://github.com/matthewgoerg/hive-rstudio/blob/master/dashboard.png)
 
 **Technology stack:**
 
