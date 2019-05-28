@@ -2,10 +2,10 @@
 
 ![Dashboard](https://github.com/matthewgoerg/hive-rstudio/blob/master/dashboard.png)
 
-**ML model comparison Preview**
-
-![Dashboard](https://github.com/matthewgoerg/hive-rstudio/blob/master/lift_clicks.PNG)
-
+***Note:*** This is not my ideal approach for solving machine learning on the cloud. I think the 
+future of this topic is in serverless machine learing using tools like ---- and ---- in Python and 
+using GCP. Machine learning with HDFS is not 
+ 
 # Machine Learning and Dashboards on the Cloud
 
 > Using Google Cloud Platform, Hive, Spark, and RStudio
@@ -215,6 +215,39 @@ AS SELECT
  DISTRIBUTE BY rand()
  SORT BY rand()
  LIMIT 10000;
+```
+
+Eventually, we are going to need to convert the categorical columns to binary dummy variables so that 
+we can run machine learing models. It would be nice to use all of the levels within each category, but 
+we find that there are 1.1 million different levels for the first categorical variable alone. It would 
+be too costly to have millions of variables for each observation. Therefore, we will follow ---- and 
+find the top 20 most common levels for each variable and leave the rest as zeros. This should give us 
+similar results to using all the levels at a far lower computational cost.
+
+First step is to fin the most common levels for each variable. To accomplish this, we will use two small 
+files and execute them from the cluster command line.
+
+The first file is a bash script that loops through each categorical variable and launches a HQL script for 
+each one. The HQL script is simply a query that returns a table of the top 20 most common variables for the 
+given categorical field. These tables will come into play as we set up the ML pipeline. 
+
+```bashscript
+## loop_data.sh
+for flag in $(seq -f "%02g" 1 26);
+do
+  hive --hivevar mytable="table_cat_feature_"$flag --hivevar myvar="cat_feature_"$flag flag=$flag -f new_data.hql
+done
+```
+
+```hql
+DROP TABLE IF EXISTS ${hivevar:mytable};
+
+CREATE TABLE ${hivevar:mytable} AS
+SELECT ${hivevar:myvar}, COUNT(*) AS count_
+FROM click_sample
+GROUP BY ${hivevar:myvar}
+ORDER BY count_ DESC
+LIMIT 20;
 ```
 
 ## RStudio Environment
