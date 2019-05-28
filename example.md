@@ -45,7 +45,7 @@
 
 **Recordit**
 
-![Recordit GIF](http://g.recordit.co/iLN6A0vSD8.gif)
+![Recordit GIF](https://github.com/matthewgoerg/hive-rstudio/blob/master/dashboard.png)
 
 ---
 
@@ -118,6 +118,68 @@ your environment, type this:
 ```hiveql
 SHOW TABLES;
 ```
+Let's move our data from Google Cloud Storage (GCS) to Hive.
+
+```hiveql
+DROP TABLE IF EXISTS click_data;
+
+CREATE EXTERNAL TABLE click_data 
+(label INT, 
+	int_feature_01 INT,
+	int_feature_02 INT,
+	int_feature_03 INT,
+	int_feature_04 INT,
+	int_feature_05 INT,
+	int_feature_06 INT,
+	int_feature_07 INT,
+	int_feature_08 INT,
+	int_feature_09 INT,
+	int_feature_10 INT,
+	int_feature_11 INT,
+	int_feature_12 INT,
+	int_feature_13 INT,
+	cat_feature_01 VARCHAR(8),
+	cat_feature_02 VARCHAR(8),
+	cat_feature_03 VARCHAR(8),
+	cat_feature_04 VARCHAR(8),
+	cat_feature_05 VARCHAR(8),
+	cat_feature_06 VARCHAR(8),
+	cat_feature_07 VARCHAR(8),
+	cat_feature_08 VARCHAR(8),
+	cat_feature_09 VARCHAR(8),
+	cat_feature_10 VARCHAR(8),
+	cat_feature_11 VARCHAR(8),
+	cat_feature_12 VARCHAR(8),
+	cat_feature_13 VARCHAR(8),
+	cat_feature_14 VARCHAR(8),
+	cat_feature_15 VARCHAR(8),
+	cat_feature_16 VARCHAR(8),
+	cat_feature_17 VARCHAR(8),
+	cat_feature_18 VARCHAR(8),
+	cat_feature_19 VARCHAR(8),
+	cat_feature_20 VARCHAR(8),
+	cat_feature_21 VARCHAR(8),
+	cat_feature_22 VARCHAR(8),
+	cat_feature_23 VARCHAR(8),
+	cat_feature_24 VARCHAR(8),
+	cat_feature_25 VARCHAR(8),
+	cat_feature_26 VARCHAR(8))
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+LOCATION 'gs://$PROJECT/click/';
+```
+
+```hiveql
+SELECT COUNT(*) FROM click_data;
+```
+
+This table is 192 million rows long. Even though we built a cluster, it is a good idea to 
+test out our machine learning pipeline on a subset of the data. Once, we know it's working,
+we can go back and run it on our entire data. The following code will randomly sample 10,000
+rows from click_data into a new table called click_sample.
+
+
+
+
 
 ---
 
