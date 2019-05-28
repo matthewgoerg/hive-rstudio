@@ -53,7 +53,7 @@
 
 > If you're `README` has a lot of info, section headers might be nice.
 
-- [Set up GCP project](#Set up GCP project)
+- [Set up GCP project](#gcp)
 - [Hive](#hive)
 - [RStudio environment](#rstudio)
 - [Dashboards](#rstudio)
