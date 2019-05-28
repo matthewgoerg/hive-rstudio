@@ -1,11 +1,16 @@
-**Dashboard Preview**
+**Dashboard preview**
 
 ![Dashboard](https://github.com/matthewgoerg/hive-rstudio/blob/master/dashboard.png)
+
+**ML model comparison Preview**
+
+![Dashboard](https://github.com/matthewgoerg/hive-rstudio/blob/master/lift_clicks.PNG)
 
 # Machine Learning and Dashboards on the Cloud
 
 > Using Google Cloud Platform, Hive, Spark, and RStudio
 
+In this project we will:
 - Find 100GB of real click-through data
 - Download the data into Google's Cloud Storage
 - Create a Hive/Spark cluster hosted on the Google Cloud Platform
@@ -13,10 +18,6 @@
 - Install RStudio on the cluster
 - Build an interactive dashboard using R Shiny
 - Execute a machine learning pipeline using the R interface for Spark's Machine Learning Library (MLlib)
-
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
-
-
 
 **Technology stack:**
 
@@ -218,6 +219,75 @@ AS SELECT
 
 ## RStudio Environment
 
+Go back to the command line on the master node and run this to install R on your cluster:
+
+```clustercommandline
+sudo apt-get update
+sudo apt-get install -y \
+	r-base r-base-dev \
+	libcurl4-openssl-dev libssl-dev libxml2-dev
+```
+
+Open your browser and type http://localhost:8787 in the address bar. Enter your user name and password. 
+Once you are in, open a new R script.
+
+The first order of business is to install all of the packages we need. Installing packages in R 
+can take much longer on GCP than the desktop versions we're accustom to.
+
+```r
+install.packages("sparklyr")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("tidyr")
+install.packages("lsei")
+install.packages("stringr")
+install.packages("rlang")
+install.packages("MLmetrics")
+
+library(sparklyr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lsei)
+library(stringr)
+library(rlang)
+library(MLmetrics)
+
+sparklyr::spark_install()
+```
+
+Next, we will configure Spark and connect to it. Spark will run on our cluster in the background and 
+sparklyr will translate the R code into Scala (or Java? I'm not sure) code to make our lives easier.
+While we are here it would be helpful to point out potential problems with this approach. 
+- There are far fewer users in the sparklyr community than the R community as a whole. This means that there 
+is less support in terms of forums. 
+- The code is being translated into a paradigm and code that we are not as familiar with as R. When things go 
+wrong, it is difficult to read through the error messages and debug. It would be a good idea to read up on Spark 
+and Hive to understand how they work.
+As an example, when I was creating this project, I was reminded that Hive tables are not automatically ACID compliant. 
+When I tried to mutate some columns in dplyr, I ran into errors. I was stuck until I realized that instead of updating 
+the single column I was interested in, Hive was creating a new table with the updated column and re-assigning it back 
+to the name of the old table.
+
+```r-base
+#config
+Sys.setenv(SPARK_HOME="/usr/lib/spark")
+config <- spark_config()
+
+#connect
+sc <- spark_connect(master = "local")
+```
+
+We need to convert the categorical variables into an expanded set of binary columns.
+
+```r
+click_sample <- tbl(sc, "click_sample") %>%
+  select(starts_with("cat"))
+```
+
+
+## Dashboard
+
 The HQL code is not very exciting in this project because there is only one table and the 
 column names are masked so it is difficult to formulate interesting analytic questions.
 
@@ -230,107 +300,6 @@ app.
 ```
 
 
----
-
-## Installation
-
-- All the `code` required to get started
-- Images of what it should look like
-
-### Clone
-
-- Clone this repo to your local machine using `https://github.com/fvcproductions/SOMEREPO`
-
-### Setup
-
-- If you want more syntax highlighting, format your code like this:
-
-> update and install this package first
-
-```shell
-$ brew update
-$ brew install fvcproductions
-```
-Go to your browser and navigate to http://localhost:8787. 
-> now install npm and bower packages
-
-```shell
-$ npm install
-$ bower install
-```
-
-- For all the possible languages that support syntax highlithing on GitHub (which is basically all of them), refer <a href="https://github.com/github/linguist/blob/master/lib/linguist/languages.yml" target="_blank">here</a>.
-
----
-
-## Features
-## Usage (Optional)
-## Documentation (Optional)
-## Tests (Optional)
-
-- Going into more detail on code and technologies used
-- I utilized this nifty <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">Markdown Cheatsheet</a> for this sample `README`.
-
----
-
-## Contributing
-
-> To get started...
-
-### Step 1
-
-- **Option 1**
-    - 🍴 Fork this repo!
-
-- **Option 2**
-    - 👯 Clone this repo to your local machine using `https://github.com/joanaz/HireDot2.git`
-
-### Step 2
-
-- **HACK AWAY!** 🔨🔨🔨
-
-### Step 3
-
-- 🔃 Create a new pull request using <a href="https://github.com/joanaz/HireDot2/compare/" target="_blank">`https://github.com/joanaz/HireDot2/compare/`</a>.
-
----
-
-## Team
-
-> Or Contributors/People
-
-| <a href="http://fvcproductions.com" target="_blank">**FVCproductions**</a> | <a href="http://fvcproductions.com" target="_blank">**FVCproductions**</a> | <a href="http://fvcproductions.com" target="_blank">**FVCproductions**</a> |
-| :---: |:---:| :---:|
-| [![FVCproductions](https://avatars1.githubusercontent.com/u/4284691?v=3&s=200)](http://fvcproductions.com)    | [![FVCproductions](https://avatars1.githubusercontent.com/u/4284691?v=3&s=200)](http://fvcproductions.com) | [![FVCproductions](https://avatars1.githubusercontent.com/u/4284691?v=3&s=200)](http://fvcproductions.com)  |
-| <a href="http://github.com/fvcproductions" target="_blank">`github.com/fvcproductions`</a> | <a href="http://github.com/fvcproductions" target="_blank">`github.com/fvcproductions`</a> | <a href="http://github.com/fvcproductions" target="_blank">`github.com/fvcproductions`</a> |
-
-- You can just grab their GitHub profile image URL
-- You should probably resize their picture using `?s=200` at the end of the image URL.
-
----
-
-## FAQ
-
-- **How do I do *specifically* so and so?**
-    - No problem! Just do this.
-
----
-
-## Support
-
-Reach out to me at one of the following places!
-
-- Website at <a href="http://fvcproductions.com" target="_blank">`fvcproductions.com`</a>
-- Twitter at <a href="http://twitter.com/fvcproductions" target="_blank">`@fvcproductions`</a>
-- Insert more social links here.
-
----
-
-## Donations (Optional)
-
-- You could include a <a href="https://cdn.rawgit.com/gratipay/gratipay-badge/2.3.0/dist/gratipay.png" target="_blank">Gratipay</a> link as well.
-
-[![Support via Gratipay](https://cdn.rawgit.com/gratipay/gratipay-badge/2.3.0/dist/gratipay.png)](https://gratipay.com/fvcproductions/)
 
 
 ---
