@@ -84,23 +84,14 @@ level in the column.
 
 ```r
 for (i in 1:26) {
-
 idx_col <- paste0('cat_idx_', str_pad(i, 2, pad = "0"))
 
-
-
 click_sample <- click_sample %>%
-
   ft_string_indexer(input_col = paste0('cat_feature_', str_pad(i, 2, pad = "0")),
-
                     output_col = paste0('cat_idx_', str_pad(i, 2, pad = "0"))) %>%
-
   mutate(!!idx_col := ifelse(!!sym(idx_col) >= 21, 21, !!sym(idx_col))) %>%
-
   ft_one_hot_encoder(input_col = paste0('cat_idx_', str_pad(i, 2, pad = "0")),
-
                      output_col = paste0('cat_vec_', str_pad(i, 2, pad = "0")))
-
 }
 ```
 
@@ -108,9 +99,7 @@ We want to drop all of the original and intermediate categorical columns.
 
 ```r
 click_sample <- click_sample %>%
-
   select(-starts_with('cat_feat')) %>%
-
   select(-starts_with('cat_idx'))
 ```
 
@@ -122,14 +111,10 @@ number of integer columns.
 ```r
 preview <- as.data.frame(head(click_sample, 1))
 
-
-
 num_features <- 13
 
 for (i in 15:40) {
-
   num_features <- features + length(preview[1,i][[1]])
-
 }
 ```
 
@@ -140,13 +125,10 @@ data.
 
 ```r
 click_data <- click_sample %>%
-
   sdf_random_split(train = 0.6, validation = 0.4, weight = 0.1, seed = 123)
 
 train_tbl <- click_data$train
-
 test_tbl <- click_data$validation
-
 weight_tbl <- click_data$weight
 ```
 
@@ -161,16 +143,10 @@ Below I'm training each one. I am not doing much with the hyperparameters but th
 tuned eventually. Let's try running with mostly defaults and see how they perform.
 
 ```r
-
 ml_dt <- ml_decision_tree_classifier(x=train_tbl, formula=ml_formula)
 ml_gbt <- ml_gbt_classifier(train_tbl, ml_formula, max_iter = 250, step_size = 0.01)
-
-
 ml_rf <- ml_random_forest_classifier(train_tbl, ml_formula, num_trees = 250)
-
-
 ml_nn <- ml_multilayer_perceptron_classifier(train_tbl, ml_formula, layers = c(num_features, 200, 100, 2))
-
 ```
 
 I need to convert this code into an lapply function. This step collects predicted values for 
@@ -206,10 +182,7 @@ pnnls() instead of lm() because I want the sum of the coefficients to be 1.
 
 ```r
 a <- as.matrix(combined[2:4])
-
 b <- combined$label
-
-
 
 my_coefs <- pnnls(a, b, sum = 1)$x
 my_coefs
@@ -248,7 +221,6 @@ more accurate than any of the individual models alone.
 
 ```r
 combined_test <- combined %>%
-
   mutate(weighted_prob = nn_prob*my_coefs[1]+gbt_prob*my_coefs[2]+rf_prob*my_coefs[3])
 ```
 
