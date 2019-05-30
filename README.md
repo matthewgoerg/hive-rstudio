@@ -1,6 +1,6 @@
 **Dashboard preview**
 
-![Dashboard](https://github.com/matthewgoerg/hive-rstudio/blob/master/dashboard.png)
+![Dashboard](https://github.com/matthewgoerg/hive-rstudio/blob/master/images/dashboard.png)
 
 ***Note:*** This is not my ideal approach for doing machine learning on the cloud. I would prefer to
 use serverless machine learing on GCP or AWS using Tensorflow in Python.

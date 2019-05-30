@@ -234,6 +234,7 @@ LogLoss(combined_test$weighted_prob, combined_test$label)
 
 Regardless, my models do have some predictive power. Here's the ROC curves for the individual models:
 
+![ROC](https://github.com/matthewgoerg/hive-rstudio/blob/master/images/lift_clicks.PNG)
 
 For an intutive interpretation of the models' usefulness consider we can break down the predicted probabilities.
 The overall sample click rate is 0.03203 or ~3.2%. My model gave a range of predicted values for each observation.
