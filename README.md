@@ -2,8 +2,8 @@
 
 ![Dashboard](https://github.com/matthewgoerg/hive-rstudio/blob/master/dashboard.png)
 
-***Note:*** This is not my ideal approach for doing machine learning on the cloud. I think the 
-solution involves serverless machine learing on GCP or AWS using Tensorflow in Python.
+***Note:*** This is not my ideal approach for doing machine learning on the cloud. I would prefer to
+use serverless machine learing on GCP or AWS using Tensorflow in Python.
  
 # Machine Learning and Dashboarding on the Cloud
 

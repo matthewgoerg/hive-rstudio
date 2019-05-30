@@ -224,10 +224,56 @@ combined_test <- combined %>%
   mutate(weighted_prob = nn_prob*my_coefs[1]+gbt_prob*my_coefs[2]+rf_prob*my_coefs[3])
 ```
 
-The log-loss for the weighted probability is 0.137086.
+The log-loss for the weighted probability is 0.137086, compared to 0.44 for the winning Kaggle entry. I'm not sure 
+why my score is so much lower but it is probably due to the fact that the Kaggle dataset was a smaller subset of 
+the data that I'm using. I will investigate to find out for sure.
 
 ```r
 LogLoss(combined_test$weighted_prob, combined_test$label)
+```
+
+Regardless, my models do have some predictive power. Here's the ROC curves for the individual models:
+
+
+For an intutive interpretation of the models' usefulness consider we can break down the predicted probabilities.
+The overall sample click rate is 0.03203 or ~3.2%. My model gave a range of predicted values for each observation.
+If we take the number of clicks for observations where the predicted probability of clicking is at or above the 
+median, we get a click rate of 0.0489 or ~4.9% which is well above the sample rate. For the observations with 
+predicted probabilities below the median, the click rate is 0.01514482 (~1.5%), less than half of the sample
+click rate.
+
+```r
+summary(combined_test)
+
+
+
+     label            nn_prob           gbt_prob          rf_prob        weighted_prob    
+ Min.   :0.00000   Min.   :0.02271   Min.   :0.04082   Min.   :0.01486   Min.   :0.01764  
+ 1st Qu.:0.00000   1st Qu.:0.02850   1st Qu.:0.04680   1st Qu.:0.02600   1st Qu.:0.02812  
+ Median :0.00000   Median :0.02942   Median :0.05109   Median :0.03043   Median :0.03251  
+ Mean   :0.03203   Mean   :0.03420   Mean   :0.05688   Mean   :0.03243   Mean   :0.03484  
+ 3rd Qu.:0.00000   3rd Qu.:0.03211   3rd Qu.:0.05951   3rd Qu.:0.03707   3rd Qu.:0.03921  
+ Max.   :1.00000   Max.   :0.12803   Max.   :0.65463   Max.   :0.10008   Max.   :0.13684  
+
+combined_test %>%
+
+  filter(weighted_prob >= 0.03251) %>%
+
+  select(label, weighted_prob) %>%
+
+  summarize(sum(label), n())
+
+[1] 0.04893169
+
+combined_test %>%
+
+  filter(weighted_prob < 0.03251) %>%
+
+  select(label, weighted_prob) %>%
+
+  summarize(sum(label), n())
+
+[1] 0.01514482
 ```
 
 [Dashboard with Shiny](https://github.com/matthewgoerg/hive-rstudio/blob/master/shiny.md)

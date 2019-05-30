@@ -10,7 +10,8 @@ SHOW TABLES;
 +-----------+
 +-----------+
 ```
-Let's move our data from Google Cloud Storage (GCS) to Hive.
+There currently aren't any tables to show so let's add one. We will move our data from Google Cloud Storage 
+(GCS) into a Hive table.
 
 ```hiveql
 DROP TABLE IF EXISTS click_data;
@@ -72,7 +73,8 @@ SELECT COUNT(*) FROM click_data;
 This table is 197 million rows long. Even though we built a cluster, it is a good idea to 
 test out our machine learning pipeline on a subset of the data. Once, we know it's working,
 we can go back and run it on our entire data. The following code will randomly sample 100,000
-rows from click_data into a new table called click_sample.
+rows from click_data into a new table called click_sample. While we are doing this, I'm going 
+to replace NULL integer values with 0 and empty strings with the word "EMPTY".
 
 ```hiveql
 DROP TABLE IF EXISTS click_sample;
@@ -122,12 +124,12 @@ AS SELECT
     CASE WHEN cat_feature_25 = '' THEN 'EMPTY' ELSE cat_feature_25 END AS cat_feature_25,
     CASE WHEN cat_feature_26 = '' THEN 'EMPTY' ELSE cat_feature_26 END AS cat_feature_26
  FROM click_data
- WHERE rand() <= 0.006
+ WHERE rand() <= 0.0006
  DISTRIBUTE BY rand()
  SORT BY rand()
- LIMIT 1000000;
+ LIMIT 100000;
 ```
-This took about 2.5 minutes.
+This took about 1.5 minutes.
 
 I did not end up using the following code, but I am leaving it in because it shows how I approach a 
 problem with Hive.
@@ -135,11 +137,11 @@ problem with Hive.
 Eventually, we are going to need to convert the categorical columns to binary dummy variables so that 
 we can run machine learing models. It would be nice to use all of the levels within each category, but 
 we find that there are 1.1 million different levels for the first categorical variable alone. It would 
-be too costly to have millions of variables for each observation. Therefore, we will follow ---- and 
+be too costly to have millions of variables for each observation. Therefore, we will follow [insert reference] and 
 find the top 20 most common levels for each variable and leave the rest as zeros. This should give us 
 similar results to using all the levels at a far lower computational cost.
 
-First step is to fin the most common levels for each variable. To accomplish this, we will use two small 
+First step is to find the most common levels for each variable. To accomplish this, we will use two small 
 files and execute them from the cluster command line.
 
 The first file is a bash script that loops through each categorical variable and launches a HQL script for 
