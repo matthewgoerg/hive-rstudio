@@ -246,8 +246,6 @@ click rate.
 ```r
 summary(combined_test)
 
-
-
      label            nn_prob           gbt_prob          rf_prob        weighted_prob    
  Min.   :0.00000   Min.   :0.02271   Min.   :0.04082   Min.   :0.01486   Min.   :0.01764  
  1st Qu.:0.00000   1st Qu.:0.02850   1st Qu.:0.04680   1st Qu.:0.02600   1st Qu.:0.02812  
@@ -257,21 +255,15 @@ summary(combined_test)
  Max.   :1.00000   Max.   :0.12803   Max.   :0.65463   Max.   :0.10008   Max.   :0.13684  
 
 combined_test %>%
-
   filter(weighted_prob >= 0.03251) %>%
-
   select(label, weighted_prob) %>%
-
   summarize(sum(label), n())
 
 [1] 0.04893169
 
 combined_test %>%
-
   filter(weighted_prob < 0.03251) %>%
-
   select(label, weighted_prob) %>%
-
   summarize(sum(label), n())
 
 [1] 0.01514482
