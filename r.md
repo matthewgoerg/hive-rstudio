@@ -232,7 +232,7 @@ the data that I'm using. I will investigate to find out for sure.
 LogLoss(combined_test$weighted_prob, combined_test$label)
 ```
 
-Regardless, my models do have some predictive power. Here's the ROC curves for the individual models:
+Regardless, my models do have some predictive power. Here are the ROC curves for the individual models:
 
 ![ROC](https://github.com/matthewgoerg/hive-rstudio/blob/master/images/lift_clicks.PNG)
 
