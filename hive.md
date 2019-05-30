@@ -167,3 +167,4 @@ LIMIT 20;
 
 We are going to leave Hive now, but you can try some analytic queries here if you want.
 
+[RStudio Environment](https://github.com/matthewgoerg/hive-rstudio/blob/master/r.md)

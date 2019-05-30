@@ -61,3 +61,5 @@ We want to perform the data ingestion and preprocessing in Hive. Enter this line
 ```clustercommandline
 beeline -u "jdbc:hive2://localhost:10000"
 ```
+
+[Preprocessing with Hive](https://github.com/matthewgoerg/hive-rstudio/blob/master/hive.md)

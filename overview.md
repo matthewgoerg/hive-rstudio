@@ -29,4 +29,4 @@ In this project we will:
 - Shiny
 - BigQuery
 
----
+[Set Up Google Cloud Project](https://github.com/matthewgoerg/hive-rstudio/blob/master/setup_gcp.md#set-up-gcp-project)

@@ -258,3 +258,4 @@ The log-loss for the weighted probability is 0.137086.
 LogLoss(combined_test$weighted_prob, combined_test$label)
 ```
 
+[Dashboard with Shiny](https://github.com/matthewgoerg/hive-rstudio/blob/master/shiny.md)
