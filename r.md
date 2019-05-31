@@ -114,7 +114,7 @@ preview <- as.data.frame(head(click_sample, 1))
 num_features <- 13
 
 for (i in 15:40) {
-  num_features <- features + length(preview[1,i][[1]])
+  num_features <- num_features + length(preview[1,i][[1]])
 }
 ```
 
@@ -138,17 +138,13 @@ Here's the formula we will use in each model.
 ml_formula <- formula(label ~ .)
 ```
 
-The four models I'm using are Gradient Boosted Trees, Random Forest, and Neural Net. 
+The three models I'm using are 1) Gradient Boosted Trees, 2) Random Forest, and 3) Neural Net. 
 Below I'm training each one. I am not doing much with the hyperparameters but they will need to be 
 tuned eventually. Let's try running with mostly defaults and see how they perform.
 
 ```r
-
-ml_dt <- ml_decision_tree_classifier(x=train_tbl, formula=ml_formula)
 ml_gbt <- ml_gbt_classifier(train_tbl, ml_formula, max_iter = 250, step_size = 0.01)
-
 ml_rf <- ml_random_forest_classifier(train_tbl, ml_formula, num_trees = 250)
-
 ml_nn <- ml_multilayer_perceptron_classifier(train_tbl, ml_formula, layers = c(num_features, 200, 100, 2))
 ```
 
@@ -156,6 +152,11 @@ I need to convert this code into an lapply function. This step collects predicte
 each observation in the weighting data set and merges them all into a single table.
 
 ```r
+nn_pred <- ml_predict(ml_nn, weight_tbl) %>%
+  select(label, probability_1) %>%
+  mutate(nn_prob = probability_1) %>%
+  select(-probability_1)
+  
 gbt_pred <- ml_predict(ml_gbt, weight_tbl) %>%
   select(probability_1) %>%
   mutate(gbt_prob = probability_1) %>%
@@ -164,11 +165,6 @@ gbt_pred <- ml_predict(ml_gbt, weight_tbl) %>%
 rf_pred <- ml_predict(ml_rf, weight_tbl) %>%
   select(probability_1)  %>%
   mutate(rf_prob = probability_1) %>%
-  select(-probability_1)
-
-nn_pred <- ml_predict(ml_nn, weight_tbl) %>%
-  select(label, probability_1) %>%
-  mutate(nn_prob = probability_1) %>%
   select(-probability_1)
 
 combined <- as.data.frame(cbind(nn_pred, gbt_pred, rf_pred))
@@ -190,6 +186,11 @@ This step repeats the process for the validation (test) data set and
 collects them into a table.
 
 ```r
+nn_pred <- ml_predict(ml_nn, test_tbl) %>%
+  select(label, probability_1) %>%
+  mutate(nn_prob = probability_1) %>%
+  select(-probability_1)
+  
 gbt_pred <- ml_predict(ml_gbt, test_tbl) %>%
   select(probability_1) %>%
   mutate(gbt_prob = probability_1) %>%
@@ -198,11 +199,6 @@ gbt_pred <- ml_predict(ml_gbt, test_tbl) %>%
 rf_pred <- ml_predict(ml_rf, test_tbl) %>%
   select(probability_1)  %>%
   mutate(rf_prob = probability_1) %>%
-  select(-probability_1)
-
-nn_pred <- ml_predict(ml_nn, test_tbl) %>%
-  select(label, probability_1) %>%
-  mutate(nn_prob = probability_1) %>%
   select(-probability_1)
 
 combined_test <- as.data.frame(cbind(nn_pred, gbt_pred, rf_pred))
@@ -219,7 +215,6 @@ more accurate than any of the individual models alone.
 
 ```r
 combined_test <- combined %>%
-
   mutate(weighted_prob = nn_prob*my_coefs[1]+gbt_prob*my_coefs[2]+rf_prob*my_coefs[3])
 ```
 
