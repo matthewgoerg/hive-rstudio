@@ -104,7 +104,7 @@ click_sample <- click_sample %>%
 ```
 
 The neural net model needs to know how many individual features are in the model. This is complicated 
-because the interger columns are length 1 and the lengths for each of the categorical columns ranges 
+because the integer columns are length 1 and the lengths for each of the categorical columns ranges 
 between 2 and 21. Here's a loop that counts the lengths of each categorical column and adds 13 for the 
 number of integer columns.
 
@@ -121,7 +121,7 @@ for (i in 15:40) {
 Now we're ready to start the actual machine learning. My approach for this project is an ensemble 
 of four models and consists of three steps: Training on 60% of the sample, constructing weights for 
 each model with 10% of the data, and validating on 40% of the data to see how well we predict on new 
-data.
+data. It is loosely based on [this paper](https://science.sciencemag.org/content/360/6396/1462)
 
 ```r
 click_data <- click_sample %>%
@@ -138,14 +138,17 @@ Here's the formula we will use in each model.
 ml_formula <- formula(label ~ .)
 ```
 
-The four models I'm using are Decision Tree, Gradient Boosted Trees, Random Forest, and Neural Net. 
+The four models I'm using are Gradient Boosted Trees, Random Forest, and Neural Net. 
 Below I'm training each one. I am not doing much with the hyperparameters but they will need to be 
 tuned eventually. Let's try running with mostly defaults and see how they perform.
 
 ```r
+
 ml_dt <- ml_decision_tree_classifier(x=train_tbl, formula=ml_formula)
 ml_gbt <- ml_gbt_classifier(train_tbl, ml_formula, max_iter = 250, step_size = 0.01)
+
 ml_rf <- ml_random_forest_classifier(train_tbl, ml_formula, num_trees = 250)
+
 ml_nn <- ml_multilayer_perceptron_classifier(train_tbl, ml_formula, layers = c(num_features, 200, 100, 2))
 ```
 
@@ -153,11 +156,6 @@ I need to convert this code into an lapply function. This step collects predicte
 each observation in the weighting data set and merges them all into a single table.
 
 ```r
-log_pred <- ml_predict(ml_log, weight_tbl) %>%
-  select(probability_1) %>%
-  mutate(log_prob = probability_1) %>%
-  select(-probability_1)
-
 gbt_pred <- ml_predict(ml_gbt, weight_tbl) %>%
   select(probability_1) %>%
   mutate(gbt_prob = probability_1) %>%
@@ -173,7 +171,7 @@ nn_pred <- ml_predict(ml_nn, weight_tbl) %>%
   mutate(nn_prob = probability_1) %>%
   select(-probability_1)
 
-combined <- as.data.frame(cbind(nn_pred, gbt_pred, rf_pred, log_pred))
+combined <- as.data.frame(cbind(nn_pred, gbt_pred, rf_pred))
 ```
 
 This step regresses a matrix of predicted values for each of the 4 models 
@@ -192,9 +190,9 @@ This step repeats the process for the validation (test) data set and
 collects them into a table.
 
 ```r
-log_pred <- ml_predict(ml_log, test_tbl) %>%
+gbt_pred <- ml_predict(ml_gbt, test_tbl) %>%
   select(probability_1) %>%
-  mutate(log_prob = probability_1) %>%
+  mutate(gbt_prob = probability_1) %>%
   select(-probability_1)
 
 rf_pred <- ml_predict(ml_rf, test_tbl) %>%
@@ -207,7 +205,7 @@ nn_pred <- ml_predict(ml_nn, test_tbl) %>%
   mutate(nn_prob = probability_1) %>%
   select(-probability_1)
 
-combined_test <- as.data.frame(cbind(log_pred, nn_pred, gbt_pred, rf_pred))
+combined_test <- as.data.frame(cbind(nn_pred, gbt_pred, rf_pred))
 ```
 
 Here I'm adding a column to the table of predicted values for the test set.
@@ -216,11 +214,12 @@ weighted_prob is the weighted average for each of the predicted models.
 If my coefficients from the previous step are log=0.1, nn=0.2, gbt=0.4, rf=0.3 
 and my predicted values for an observation are log=0.02, nn=0.03, gbt=0.03, rf=0.01 
 then the weighted probability for this observation is 
-0.1*0.02 + 0.2*0.03 + 0.4*0.03 + 0.3*0.01 = 0.023. The weighted probability should be 
+0.1 x 0.02 + 0.2 x 0.03 + 0.4 x 0.03 + 0.3 x 0.01 = 0.023. The weighted probability should be 
 more accurate than any of the individual models alone.
 
 ```r
 combined_test <- combined %>%
+
   mutate(weighted_prob = nn_prob*my_coefs[1]+gbt_prob*my_coefs[2]+rf_prob*my_coefs[3])
 ```
 
